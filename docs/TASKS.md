@@ -15,12 +15,12 @@ Acompanhamento de entregas do laboratório de arquitetura serverless orientada a
   - [x] Teste de sanidade do CDK Assertions (`Template.fromStack`) em `test/setup.test.ts`.
   - [x] Validação de scripts `npm run typecheck` e `npm test`.
 
-- [ ] **Tarefa 2: Infraestrutura como Código com AWS CDK (`ArqLabPipelineStack`) e testes de infraestrutura com `aws-cdk-lib/assertions`**
-  - [ ] Definição do Bucket S3 com notificações habilitadas para EventBridge.
-  - [ ] Definição da Tabela DynamoDB com chave de partição `jobId` e BillingMode Pay-Per-Request.
-  - [ ] Definição das Lambdas de cálculo geométrico e rollback saga com permissões mínimas.
-  - [ ] Criação da Máquina de Estados Step Functions com estados de validação, retry, catch e compensação saga.
-  - [ ] Suíte de testes de infraestrutura com `aws-cdk-lib/assertions` (validação de recursos CloudFormation gerados).
+- [x] **Tarefa 2: Infraestrutura como Código com AWS CDK (`ArqLabPipelineStack`) e testes de infraestrutura com `aws-cdk-lib/assertions`**
+  - [x] Definição do Bucket S3 com notificações habilitadas para EventBridge.
+  - [x] Definição da Tabela DynamoDB com chave de partição `jobId` e BillingMode Pay-Per-Request.
+  - [x] Definição das Lambdas de cálculo geométrico e rollback saga com permissões mínimas.
+  - [x] Criação da Máquina de Estados Step Functions com estados de validação, retry, catch e compensação saga.
+  - [x] Suíte de testes de infraestrutura com `aws-cdk-lib/assertions` (validação de recursos CloudFormation gerados).
 
 - [ ] **Tarefa 3: Ingestão Segura com S3 Presigned URLs, validação Zod e testes com `aws-sdk-client-mock`**
   - [ ] Schemas Zod de validação para metadados de upload e payload de cálculo geométrico.
