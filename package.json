@@ -1,0 +1,40 @@
+{
+  "name": "lab-aws-cdk-architecture",
+  "version": "1.0.0",
+  "description": "ArqLab - Arquitetura Serverless Orientada a Eventos na AWS com CDK e Step Functions",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "aws",
+    "cdk",
+    "step-functions",
+    "serverless",
+    "event-driven",
+    "dynamodb",
+    "s3",
+    "idempotency",
+    "saga-pattern"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1157.0",
+    "@aws-sdk/client-s3": "^3.1157.0",
+    "@aws-sdk/lib-dynamodb": "^3.1157.0",
+    "@aws-sdk/s3-request-presigner": "^3.1157.0",
+    "aws-cdk-lib": "^2.275.0",
+    "constructs": "^10.8.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "aws-sdk-client-mock": "^4.1.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

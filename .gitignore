@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing and Coverage
+coverage/
+*.lcov
+
+# CDK asset and output directories
+cdk.out/
+.cdk.staging/
+
+# Build artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Local Emulators / Floci
+.floci/
+floci_data/
+
+# Environment and IDE
+.env
+.env.local
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

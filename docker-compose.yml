@@ -1,0 +1,15 @@
+services:
+  floci:
+    image: hectorvent/floci:latest
+    container_name: arqlab-floci
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,dynamodb,stepfunctions,eventbridge,lambda
+      - DEFAULT_REGION=us-east-1
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - floci_data:/data
+
+volumes:
+  floci_data:
