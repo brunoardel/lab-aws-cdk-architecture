@@ -27,11 +27,11 @@ Acompanhamento de entregas do laboratório de arquitetura serverless orientada a
   - [x] Serviço gerador de Presigned URLs com controle de expiração e restrições de caminho S3.
   - [x] Testes unitários com `aws-sdk-client-mock` para S3 Client e presigner.
 
-- [ ] **Tarefa 4: Idempotência Condicional no DynamoDB (`attribute_not_exists`) e Handlers do Step Functions (Cálculo + Saga Rollback)**
-  - [ ] Serviço de persistência no DynamoDB com trava condicional de idempotência (`attribute_not_exists(jobId)`).
-  - [ ] Handler Lambda do cálculo geométrico com tratamento de erros simulados e retry.
-  - [ ] Handler Lambda do Rollback Saga para atualização do DynamoDB em caso de falha irreversível.
-  - [ ] Testes unitários cobrindo cenários de sucesso, duplicidade de job (idempotência) e falha/rollback.
+- [x] **Tarefa 4: Idempotência Condicional no DynamoDB (`attribute_not_exists`) e Handlers do Step Functions (Cálculo + Saga Rollback)**
+  - [x] Serviço de persistência no DynamoDB com trava condicional de idempotência (`attribute_not_exists(jobId)`).
+  - [x] Handler Lambda do cálculo geométrico com tratamento de erros simulados e retry.
+  - [x] Handler Lambda do Rollback Saga para atualização do DynamoDB em caso de falha irreversível.
+  - [x] Testes unitários cobrindo cenários de sucesso, duplicidade de job (idempotência) e falha/rollback.
 
 - [ ] **Tarefa 5: Simulador Visual Interativo da Arquitetura AWS (Console S3/DynamoDB + Grafo do Step Functions Workflow Studio em HTML/JS)**
   - [ ] Interface visual interativa simulando o console AWS (Bucket S3, Tabela DynamoDB).
