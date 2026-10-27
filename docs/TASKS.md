@@ -33,7 +33,7 @@ Acompanhamento de entregas do laboratório de arquitetura serverless orientada a
   - [x] Handler Lambda do Rollback Saga para atualização do DynamoDB em caso de falha irreversível.
   - [x] Testes unitários cobrindo cenários de sucesso, duplicidade de job (idempotência) e falha/rollback.
 
-- [ ] **Tarefa 5: Simulador Visual Interativo da Arquitetura AWS (Console S3/DynamoDB + Grafo do Step Functions Workflow Studio em HTML/JS)**
-  - [ ] Interface visual interativa simulando o console AWS (Bucket S3, Tabela DynamoDB).
-  - [ ] Grafo de estados interativo no estilo Workflow Studio do Step Functions com animação do fluxo de execução.
-  - [ ] Painel de logs de execução e disparador de cenários (Sucesso, Duplicidade/Idempotência e Falha/Rollback).
+- [x] **Tarefa 5: Simulador Visual Interativo da Arquitetura AWS (Console S3/DynamoDB + Grafo do Step Functions Workflow Studio em HTML/JS)**
+  - [x] Interface visual interativa simulando o console AWS (Bucket S3, Tabela DynamoDB).
+  - [x] Grafo de estados interativo no estilo Workflow Studio do Step Functions com animação do fluxo de execução.
+  - [x] Painel de logs de execução e disparador de cenários (Sucesso, Duplicidade/Idempotência e Falha/Rollback).
