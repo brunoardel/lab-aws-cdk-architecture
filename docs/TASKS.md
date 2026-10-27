@@ -22,10 +22,10 @@ Acompanhamento de entregas do laboratório de arquitetura serverless orientada a
   - [x] Criação da Máquina de Estados Step Functions com estados de validação, retry, catch e compensação saga.
   - [x] Suíte de testes de infraestrutura com `aws-cdk-lib/assertions` (validação de recursos CloudFormation gerados).
 
-- [ ] **Tarefa 3: Ingestão Segura com S3 Presigned URLs, validação Zod e testes com `aws-sdk-client-mock`**
-  - [ ] Schemas Zod de validação para metadados de upload e payload de cálculo geométrico.
-  - [ ] Serviço gerador de Presigned URLs com controle de expiração e restrições de caminho S3.
-  - [ ] Testes unitários com `aws-sdk-client-mock` para S3 Client e presigner.
+- [x] **Tarefa 3: Ingestão Segura com S3 Presigned URLs, validação Zod e testes com `aws-sdk-client-mock`**
+  - [x] Schemas Zod de validação para metadados de upload e payload de cálculo geométrico.
+  - [x] Serviço gerador de Presigned URLs com controle de expiração e restrições de caminho S3.
+  - [x] Testes unitários com `aws-sdk-client-mock` para S3 Client e presigner.
 
 - [ ] **Tarefa 4: Idempotência Condicional no DynamoDB (`attribute_not_exists`) e Handlers do Step Functions (Cálculo + Saga Rollback)**
   - [ ] Serviço de persistência no DynamoDB com trava condicional de idempotência (`attribute_not_exists(jobId)`).
