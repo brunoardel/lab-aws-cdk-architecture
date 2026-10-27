@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ArqLab — Simulador da Arquitetura AWS & Workflow Studio</title>
+  <style>
+    :root {
+      --bg-canvas: #0b0f19;
+      --bg-surface: #111827;
+      --bg-surface-elevated: #1f2937;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: #38bdf8;
+      --aws-orange: #ff9900;
+      --aws-blue: #0284c7;
+      --color-success: #10b981;
+      --color-running: #38bdf8;
+      --color-failed: #ef4444;
+      --color-warning: #f59e0b;
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: var(--font-family);
+      line-height: 1.5;
+      padding-bottom: 40px;
+    }
+
+    /* Top Console Navbar */
+    .aws-navbar {
+      background-color: #0d131f;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .aws-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .aws-logo-badge {
+      background: linear-gradient(135deg, #ff9900, #ea580c);
+      color: #000;
+      font-weight: 900;
+      font-size: 13px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .aws-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .aws-subtitle {
+      font-size: 12px;
+      color: var(--text-secondary);
+      margin-left: 8px;
+    }
+
+    .aws-env-tags {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .aws-pill {
+      background: var(--bg-surface-elevated);
+      padding: 4px 10px;
+      border-radius: 9999px;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .aws-pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--color-success);
+    }
+
+    /* Hero / Action Bar */
+    .control-header {
+      padding: 24px 32px;
+      background: radial-gradient(circle at top left, #1e293b, var(--bg-canvas));
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .control-title-area {
+      margin-bottom: 16px;
+    }
+
+    .control-title-area h1 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-title-area p {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-top: 4px;
+      max-width: 900px;
+    }
+
+    .action-buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      filter: grayscale(0.8);
+    }
+
+    .btn-happy {
+      background-color: #065f46;
+      color: #6ee7b7;
+      border-color: #059669;
+    }
+    .btn-happy:hover:not(:disabled) {
+      background-color: #047857;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-duplicate {
+      background-color: #78350f;
+      color: #fde68a;
+      border-color: #d97706;
+    }
+    .btn-duplicate:hover:not(:disabled) {
+      background-color: #b45309;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+    }
+
+    .btn-fail {
+      background-color: #7f1d1d;
+      color: #fca5a5;
+      border-color: #dc2626;
+    }
+    .btn-fail:hover:not(:disabled) {
+      background-color: #b91c1c;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-reset {
+      background-color: #374151;
+      color: #e5e7eb;
+      border-color: #4b5563;
+      margin-left: auto;
+    }
+    .btn-reset:hover:not(:disabled) {
+      background-color: #4b5563;
+    }
+
+    .status-banner {
+      margin-top: 16px;
+      padding: 10px 16px;
+      border-radius: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .badge-idle { background: #374151; color: #9ca3af; }
+    .badge-running { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; }
+    .badge-succeeded { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+    .badge-failed { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+    .badge-duplicate { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+
+    /* Layout Content Grid */
+    .dashboard-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1200px) {
+      .dashboard-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Panel Wrapper */
+    .panel-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 14px 18px;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-header h2 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-header .badge-counter {
+      background: var(--bg-surface-elevated);
+      color: var(--text-secondary);
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+
+    /* Workflow Studio Interactive Graph */
+    .graph-body {
+      padding: 28px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      background: radial-gradient(circle at center, #172033 0%, #0b0f19 100%);
+      min-height: 720px;
+      position: relative;
+    }
+
+    .graph-node {
+      background: var(--bg-surface-elevated);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 12px 18px;
+      width: 320px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    }
+
+    .graph-node:hover {
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .node-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .node-type {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+    }
+
+    .node-icon {
+      font-size: 14px;
+    }
+
+    .node-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .node-detail {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    /* Connecting Arrows */
+    .graph-arrow {
+      width: 2px;
+      height: 22px;
+      background: #475569;
+      position: relative;
+    }
+    .graph-arrow::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: -4px;
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 6px solid #475569;
+    }
+
+    .graph-branch-container {
+      display: flex;
+      gap: 32px;
+      width: 100%;
+      justify-content: center;
+      position: relative;
+    }
+
+    .graph-branch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+    }
+
+    /* State Machine Node Status Colors */
+    .node-running {
+      border-color: var(--color-running) !important;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.5) !important;
+      animation: pulse-glow 1.2s infinite alternate;
+    }
+
+    .node-succeeded {
+      border-color: var(--color-success) !important;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), var(--bg-surface-elevated)) !important;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3) !important;
+    }
+
+    .node-failed {
+      border-color: var(--color-failed) !important;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), var(--bg-surface-elevated)) !important;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.4) !important;
+    }
+
+    .node-duplicate {
+      border-color: var(--color-warning) !important;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), var(--bg-surface-elevated)) !important;
+      box-shadow: 0 0 15px rgba(245, 158, 11, 0.3) !important;
+    }
+
+    .node-skipped {
+      opacity: 0.35;
+      filter: grayscale(0.6);
+    }
+
+    @keyframes pulse-glow {
+      from { box-shadow: 0 0 8px rgba(56, 189, 248, 0.4); }
+      to { box-shadow: 0 0 22px rgba(56, 189, 248, 0.8); }
+    }
+
+    /* Live Data & Logs Tabs */
+    .tabs-nav {
+      display: flex;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .tab-btn {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tab-btn.active {
+      color: #38bdf8;
+      border-bottom-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.05);
+    }
+
+    .tab-content {
+      display: none;
+      padding: 16px;
+      flex: 1;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    /* DynamoDB Table */
+    .table-responsive {
+      overflow-x: auto;
+    }
+
+    .aws-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      text-align: left;
+    }
+
+    .aws-table th {
+      background: var(--bg-surface-elevated);
+      color: var(--text-secondary);
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 700;
+    }
+
+    .aws-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      color: #e5e7eb;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .aws-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .status-tag {
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-block;
+    }
+    .status-tag-processing { background: #0369a1; color: #bae6fd; }
+    .status-tag-completed { background: #065f46; color: #a7f3d0; }
+    .status-tag-failed { background: #881337; color: #fecdd3; }
+
+    /* Terminal Console */
+    .terminal-body {
+      background: #06090e;
+      border-radius: 6px;
+      padding: 14px;
+      height: 380px;
+      overflow-y: auto;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+
+    .log-time { color: #64748b; min-width: 75px; }
+    .log-level-info { color: #38bdf8; font-weight: 700; }
+    .log-level-warn { color: #fbbf24; font-weight: 700; }
+    .log-level-error { color: #f87171; font-weight: 700; }
+    .log-level-success { color: #34d399; font-weight: 700; }
+    .log-text { color: #e2e8f0; }
+
+    /* Inspector Drawer / Details Card */
+    .inspector-box {
+      margin-top: 16px;
+      padding: 14px;
+      background: #0d1424;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 6px;
+    }
+
+    .inspector-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .inspector-json {
+      background: #030712;
+      padding: 10px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #a5f3fc;
+      max-height: 180px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- AWS Management Console Header -->
+  <header class="aws-navbar">
+    <div class="aws-brand">
+      <span class="aws-logo-badge">AWS</span>
+      <span class="aws-title">Step Functions Workflow Studio</span>
+      <span class="aws-subtitle">| ArqLab Architecture Console</span>
+    </div>
+    <div class="aws-env-tags">
+      <div class="aws-pill">
+        <span class="dot"></span>
+        <span>us-east-1 (N. Virginia)</span>
+      </div>
+      <div class="aws-pill">
+        <span>Conta: <strong>123456789012</strong> (ArqLab-Sandbox)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Control Header & Scenario Runner -->
+  <section class="control-header">
+    <div class="control-title-area">
+      <h1>🚀 Simulador Visual do Pipeline de Terrenos (ArqLab)</h1>
+      <p>
+        Demonstração interativa da arquitetura orientada a eventos: ingestão via S3 Presigned URL, reatividade no EventBridge,
+        orquestração resiliente no Step Functions, controle de idempotência no DynamoDB e padrão Saga Rollback.
+      </p>
+    </div>
+
+    <div class="action-buttons-row">
+      <button id="btnHappyPath" class="btn btn-happy" onclick="runHappyPath()">
+        <span>🟢</span> Simular Fluxo Feliz (Upload DWG 80MB)
+      </button>
+
+      <button id="btnDuplicate" class="btn btn-duplicate" onclick="runDuplicateIdempotency()">
+        <span>🟠</span> Simular Idempotência (Evento Duplicado)
+      </button>
+
+      <button id="btnSagaFail" class="btn btn-fail" onclick="runSagaRollback()">
+        <span>🔴</span> Simular Falha & Rollback Saga
+      </button>
+
+      <button id="btnReset" class="btn btn-reset" onclick="resetSimulator()">
+        <span>🔄</span> Resetar Estado
+      </button>
+    </div>
+
+    <div class="status-banner">
+      <div>
+        <strong>Status da Execução Atual:</strong>
+        <span id="scenarioDescription" style="color: #9ca3af; margin-left: 8px;">Nenhuma simulação ativa. Escolha um cenário acima.</span>
+      </div>
+      <span id="scenarioBadge" class="status-badge badge-idle">IDLE</span>
+    </div>
+  </section>
+
+  <!-- Main Content Grid -->
+  <main class="dashboard-container">
+
+    <!-- Left: Step Functions State Machine Interactive Graph -->
+    <section class="panel-card">
+      <div class="panel-header">
+        <h2>
+          <span>⚙️</span> Grafo da State Machine (Workflow Studio)
+        </h2>
+        <span class="badge-counter" id="activeNodesCount">0 ativos</span>
+      </div>
+
+      <div class="graph-body">
+
+        <!-- Node 1: Presigned URL Request -->
+        <div id="node-presigned" class="graph-node" onclick="inspectNode('node-presigned')">
+          <div class="node-top">
+            <span class="node-type">Lambda (Ingestion Presigner)</span>
+            <span class="node-icon">🔑</span>
+          </div>
+          <div class="node-name">1. Generate Presigned URL</div>
+          <div class="node-detail">Validação Zod (.dwg / .kmz até 200MB)</div>
+        </div>
+
+        <div class="graph-arrow"></div>
+
+        <!-- Node 2: S3 Direct Upload -->
+        <div id="node-s3" class="graph-node" onclick="inspectNode('node-s3')">
+          <div class="node-top">
+            <span class="node-type">Amazon S3 Storage</span>
+            <span class="node-icon">🪣</span>
+          </div>
+          <div class="node-name">2. S3 Terrenos Bucket</div>
+          <div class="node-detail">Upload direto via PUT (BlockPublicAccess)</div>
+        </div>
+
+        <div class="graph-arrow"></div>
+
+        <!-- Node 3: EventBridge Notification -->
+        <div id="node-eventbridge" class="graph-node" onclick="inspectNode('node-eventbridge')">
+          <div class="node-top">
+            <span class="node-type">Amazon EventBridge</span>
+            <span class="node-icon">⚡</span>
+          </div>
+          <div class="node-name">3. EventBridge S3UploadRule</div>
+          <div class="node-detail">Captura evento ObjectCreated e dispara SFN</div>
+        </div>
+
+        <div class="graph-arrow"></div>
+
+        <!-- Node 4: Check Job in DynamoDB -->
+        <div id="node-check-job" class="graph-node" onclick="inspectNode('node-check-job')">
+          <div class="node-top">
+            <span class="node-type">Step Functions Task</span>
+            <span class="node-icon">🔍</span>
+          </div>
+          <div class="node-name">4. CheckJobTask (DynamoDB Get)</div>
+          <div class="node-detail">Verifica se o jobId já existe no banco</div>
+        </div>
+
+        <div class="graph-arrow"></div>
+
+        <!-- Node 5: Choice State -->
+        <div id="node-choice" class="graph-node" onclick="inspectNode('node-choice')">
+          <div class="node-top">
+            <span class="node-type">Choice State</span>
+            <span class="node-icon">🔀</span>
+          </div>
+          <div class="node-name">5. Choice: Já foi processado?</div>
+          <div class="node-detail">exists == true ? Pular : Registrar Trava</div>
+        </div>
+
+        <div class="graph-branch-container">
+
+          <!-- Left Branch: Register Job & Process File -->
+          <div class="graph-branch">
+            <div class="graph-arrow"></div>
+
+            <div id="node-register-job" class="graph-node" onclick="inspectNode('node-register-job')">
+              <div class="node-top">
+                <span class="node-type">Step Functions Task</span>
+                <span class="node-icon">🔒</span>
+              </div>
+              <div class="node-name">6. RegisterJobTask (DynamoDB Put)</div>
+              <div class="node-detail">Trava: attribute_not_exists(pk)</div>
+            </div>
+
+            <div class="graph-arrow"></div>
+
+            <div id="node-process-file" class="graph-node" onclick="inspectNode('node-process-file')">
+              <div class="node-top">
+                <span class="node-type">Lambda Task (Retry & Catch)</span>
+                <span class="node-icon">📐</span>
+              </div>
+              <div class="node-name">7. ProcessFileTask (Cálculo)</div>
+              <div class="node-detail">Volumetria de Terraplanagem + Malha 3D</div>
+            </div>
+
+            <div class="graph-arrow"></div>
+
+            <div id="node-success" class="graph-node" onclick="inspectNode('node-success')">
+              <div class="node-top">
+                <span class="node-type">Succeed State</span>
+                <span class="node-icon">🏁</span>
+              </div>
+              <div class="node-name">8. PipelineSucceeded</div>
+              <div class="node-detail">Status final: COMPLETED</div>
+            </div>
+          </div>
+
+          <!-- Right Branch: Duplicate / Saga Rollback -->
+          <div class="graph-branch">
+            <div class="graph-arrow"></div>
+
+            <div id="node-duplicate-exit" class="graph-node" onclick="inspectNode('node-duplicate-exit')">
+              <div class="node-top">
+                <span class="node-type">Succeed State (Bypass)</span>
+                <span class="node-icon">🛡️</span>
+              </div>
+              <div class="node-name">6b. JobAlreadyProcessed</div>
+              <div class="node-detail">Idempotência garantida (Zero Duplicação)</div>
+            </div>
+
+            <div class="graph-arrow"></div>
+
+            <div id="node-rollback-saga" class="graph-node" onclick="inspectNode('node-rollback-saga')">
+              <div class="node-top">
+                <span class="node-type">Saga Catch Task</span>
+                <span class="node-icon">🔄</span>
+              </div>
+              <div class="node-name">7b. RollbackJobTask (Saga)</div>
+              <div class="node-detail">Compensação: Marca FAILED no DynamoDB</div>
+            </div>
+
+            <div class="graph-arrow"></div>
+
+            <div id="node-failed-state" class="graph-node" onclick="inspectNode('node-failed-state')">
+              <div class="node-top">
+                <span class="node-type">Fail State</span>
+                <span class="node-icon">❌</span>
+              </div>
+              <div class="node-name">8b. PipelineFailed</div>
+              <div class="node-detail">Execução compensada e registrada</div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Right: Live DynamoDB Table & Logs Terminal -->
+    <section class="panel-card">
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('tab-dynamo')">
+          <span>📊</span> Tabela DynamoDB (JobsIdempotency)
+        </button>
+        <button class="tab-btn" onclick="switchTab('tab-terminal')">
+          <span>💻</span> CloudWatch Logs em Tempo Real
+        </button>
+      </div>
+
+      <!-- Tab 1: DynamoDB Table -->
+      <div id="tab-dynamo" class="tab-content active">
+        <div class="table-responsive">
+          <table class="aws-table">
+            <thead>
+              <tr>
+                <th>PK (Job ID)</th>
+                <th>Status</th>
+                <th>File Key</th>
+                <th>Corte / Aterro</th>
+                <th>TTL (expiresAt)</th>
+              </tr>
+            </thead>
+            <tbody id="dynamoTableBody">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="inspector-box" id="inspectorBox">
+          <div class="inspector-title">
+            <span id="inspectorNodeTitle">Clique em qualquer nó do grafo para inspecionar</span>
+            <span id="inspectorNodeBadge">INSPECTOR</span>
+          </div>
+          <div class="inspector-json" id="inspectorNodePayload">
+// Selecione uma etapa da State Machine para visualizar o payload simulado em tempo real...
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Terminal Logs -->
+      <div id="tab-terminal" class="tab-content">
+        <div class="terminal-body" id="terminalLogs">
+          <!-- Dynamically populated logs -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Simulation Logic & Interactive Controller -->
+  <script>
+    // State Store
+    const state = {
+      isSimulating: false,
+      activeScenario: null,
+      jobs: [
+        {
+          pk: "JOB#proj-alphaville_lote12.dwg",
+          sk: "METADATA",
+          status: "COMPLETED",
+          fileKey: "terrenos/raw/proj-alphaville/1700000000-lote12.dwg",
+          volumes: "4.520m³ / 3.820m³",
+          ttl: "7 dias"
+        }
+      ],
+      logs: []
+    };
+
+    const nodePayloads = {
+      "node-presigned": {
+        input: { projetoId: "proj-reserva-verde", fileName: "topografia_geral.dwg", fileSizeBytes: 83886080 },
+        output: { uploadUrl: "https://arqlab-terrenos-raw.s3.us-east-1.amazonaws.com/terrenos/raw/...", expiresIn: 900 }
+      },
+      "node-s3": {
+        event: "ObjectCreated:Put",
+        bucket: "arqlab-terrenos-raw",
+        key: "terrenos/raw/proj-reserva-verde/1715000000-topografia_geral.dwg",
+        sizeBytes: 83886080,
+        encryption: "AES256"
+      },
+      "node-eventbridge": {
+        source: "aws.s3",
+        detailType: "Object Created",
+        rule: "ArqLabS3UploadRule",
+        target: "arn:aws:states:us-east-1:123456789012:stateMachine:ArqLabPipelineStateMachine"
+      },
+      "node-check-job": {
+        command: "DynamoDB.GetItem",
+        key: { pk: "JOB#proj-reserva-verde_topografia_geral.dwg", sk: "METADATA" },
+        result: "Item evaluated"
+      },
+      "node-choice": {
+        type: "Choice",
+        rule: "$.exists == true -> Bypass | else -> Register"
+      },
+      "node-register-job": {
+        command: "DynamoDB.PutItem",
+        conditionExpression: "attribute_not_exists(pk)",
+        item: { status: "PROCESSING", createdAt: new Date().toISOString() }
+      },
+      "node-process-file": {
+        task: "CalculateVolumetryLambda",
+        retryPolicy: { maxAttempts: 3, backoffRate: 2.0, intervalSeconds: 2 },
+        result: { volumeCorteM3: 5240.5, volumeAterroM3: 4120.2, malhaValidada: true }
+      },
+      "node-rollback-saga": {
+        catchTriggered: "States.TaskFailed / MeshCorruptedError",
+        action: "DynamoDB.UpdateItem",
+        newStatus: "FAILED",
+        reason: "Compensação Saga executada com sucesso"
+      }
+    };
+
+    // Helper functions
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    function addLog(level, message) {
+      const time = new Date().toLocaleTimeString();
+      const logEntry = { time, level, message };
+      state.logs.push(logEntry);
+
+      const terminal = document.getElementById("terminalLogs");
+      const line = document.createElement("div");
+      line.className = "log-line";
+      line.innerHTML = `
+        <span class="log-time">[${time}]</span>
+        <span class="log-level-${level}">[${level.toUpperCase()}]</span>
+        <span class="log-text">${message}</span>
+      `;
+      terminal.appendChild(line);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function renderDynamoTable() {
+      const tbody = document.getElementById("dynamoTableBody");
+      tbody.innerHTML = "";
+
+      state.jobs.forEach(job => {
+        const tr = document.createElement("tr");
+        const statusClass =
+          job.status === "COMPLETED" ? "status-tag-completed" :
+          job.status === "PROCESSING" ? "status-tag-processing" : "status-tag-failed";
+
+        tr.innerHTML = `
+          <td><strong>${job.pk}</strong></td>
+          <td><span class="status-tag ${statusClass}">${job.status}</span></td>
+          <td style="color: #94a3b8;">${job.fileKey}</td>
+          <td>${job.volumes || "-"}</td>
+          <td>${job.ttl}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function setButtonsState(disabled) {
+      document.getElementById("btnHappyPath").disabled = disabled;
+      document.getElementById("btnDuplicate").disabled = disabled;
+      document.getElementById("btnSagaFail").disabled = disabled;
+      document.getElementById("btnReset").disabled = disabled;
+    }
+
+    function clearNodeClasses() {
+      document.querySelectorAll(".graph-node").forEach(node => {
+        node.className = "graph-node";
+      });
+    }
+
+    function highlightNode(nodeId, statusClass) {
+      const node = document.getElementById(nodeId);
+      if (node) {
+        node.className = `graph-node ${statusClass}`;
+      }
+    }
+
+    function inspectNode(nodeId) {
+      const titleEl = document.getElementById("inspectorNodeTitle");
+      const jsonEl = document.getElementById("inspectorNodePayload");
+      const badgeEl = document.getElementById("inspectorNodeBadge");
+
+      const nodeName = document.getElementById(nodeId)?.querySelector(".node-name")?.innerText || nodeId;
+      titleEl.innerText = `Inspeção: ${nodeName}`;
+      badgeEl.innerText = nodeId.toUpperCase();
+
+      const payload = nodePayloads[nodeId] || { message: "Sem payload específico registrado." };
+      jsonEl.innerText = JSON.stringify(payload, null, 2);
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
+
+      if (tabId === "tab-dynamo") {
+        document.querySelectorAll(".tab-btn")[0].classList.add("active");
+        document.getElementById("tab-dynamo").classList.add("active");
+      } else {
+        document.querySelectorAll(".tab-btn")[1].classList.add("active");
+        document.getElementById("tab-terminal").classList.add("active");
+      }
+    }
+
+    // =========================================================================
+    // Simulação 1: Fluxo Feliz (Happy Path)
+    // =========================================================================
+    async function runHappyPath() {
+      if (state.isSimulating) return;
+      state.isSimulating = true;
+      setButtonsState(true);
+      clearNodeClasses();
+
+      const badge = document.getElementById("scenarioBadge");
+      const desc = document.getElementById("scenarioDescription");
+
+      badge.className = "status-badge badge-running";
+      badge.innerText = "RUNNING";
+      desc.innerText = "Executando: Upload de arquivo DWG de 80MB e processamento com sucesso.";
+
+      addLog("info", "Iniciando Simulação 1: Upload DWG 80MB via Presigned URL.");
+
+      // Step 1: Presigned URL
+      highlightNode("node-presigned", "node-running");
+      inspectNode("node-presigned");
+      addLog("info", "Cliente solicita Presigned URL para 'topografia_geral.dwg' (80MB).");
+      await sleep(700);
+      highlightNode("node-presigned", "node-succeeded");
+      addLog("success", "Presigned URL gerada com sucesso pelo S3 Presigner (expira em 900s).");
+
+      // Step 2: S3 Upload
+      highlightNode("node-s3", "node-running");
+      inspectNode("node-s3");
+      addLog("info", "Upload direto do payload binário de 80MB executado via HTTP PUT no Amazon S3.");
+      await sleep(800);
+      highlightNode("node-s3", "node-succeeded");
+      addLog("success", "Objeto gravado no bucket 'arqlab-terrenos-raw' com criptografia AES-256.");
+
+      // Step 3: EventBridge
+      highlightNode("node-eventbridge", "node-running");
+      inspectNode("node-eventbridge");
+      addLog("info", "Notificação S3 ObjectCreated recebida no EventBridge Bus padrão.");
+      await sleep(600);
+      highlightNode("node-eventbridge", "node-succeeded");
+      addLog("success", "Regra 'ArqLabS3UploadRule' disparada: acionando State Machine Step Functions.");
+
+      // Step 4: Step Functions Check Job
+      highlightNode("node-check-job", "node-running");
+      inspectNode("node-check-job");
+      addLog("info", "[SFN Task] Consultando DynamoDB (GetItem) com pk: JOB#proj-reserva-verde_topografia_geral.dwg.");
+      await sleep(700);
+      highlightNode("node-check-job", "node-succeeded");
+      addLog("info", "[SFN Task] Job inexistente no banco. exists = false.");
+
+      // Step 5: Choice State
+      highlightNode("node-choice", "node-running");
+      inspectNode("node-choice");
+      addLog("info", "[SFN Choice] Avaliando: exists == false. Roteando para RegisterJobTask.");
+      await sleep(600);
+      highlightNode("node-choice", "node-succeeded");
+      highlightNode("node-duplicate-exit", "node-skipped");
+
+      // Step 6: Register Job (Lock Condicional)
+      highlightNode("node-register-job", "node-running");
+      inspectNode("node-register-job");
+      addLog("info", "[SFN Task] Adquirindo trava no DynamoDB via PutItem com attribute_not_exists(pk).");
+
+      const newJob = {
+        pk: "JOB#proj-reserva-verde_topografia_geral.dwg",
+        sk: "METADATA",
+        status: "PROCESSING",
+        fileKey: "terrenos/raw/proj-reserva-verde/1715000000-topografia_geral.dwg",
+        volumes: "Calculando...",
+        ttl: "7 dias"
+      };
+      state.jobs.unshift(newJob);
+      renderDynamoTable();
+
+      await sleep(800);
+      highlightNode("node-register-job", "node-succeeded");
+      addLog("success", "[SFN Task] Trava condicional adquirida com sucesso! Status: PROCESSING.");
+
+      // Step 7: Process File
+      highlightNode("node-process-file", "node-running");
+      inspectNode("node-process-file");
+      addLog("info", "[SFN Task] Executando Lambda de cálculo paramétrico e triangulação Delaunay...");
+      await sleep(1000);
+      highlightNode("node-process-file", "node-succeeded");
+      addLog("success", "[SFN Task] Cálculo volumétrico concluído: Corte = 5.240m³, Aterro = 4.120m³.");
+
+      // Update DynamoDB
+      newJob.status = "COMPLETED";
+      newJob.volumes = "5.240m³ / 4.120m³";
+      renderDynamoTable();
+
+      // Step 8: Succeeded
+      highlightNode("node-success", "node-succeeded");
+      highlightNode("node-rollback-saga", "node-skipped");
+      highlightNode("node-failed-state", "node-skipped");
+
+      badge.className = "status-badge badge-succeeded";
+      badge.innerText = "SUCCEEDED";
+      desc.innerText = "Fluxo Feliz finalizado com sucesso! Job gravado como COMPLETED no DynamoDB.";
+      addLog("success", "Execução da State Machine finalizada com status COMPLETED!");
+
+      setButtonsState(false);
+      state.isSimulating = false;
+    }
+
+    // =========================================================================
+    // Simulação 2: Idempotência At-Least-Once (Evento Duplicado)
+    // =========================================================================
+    async function runDuplicateIdempotency() {
+      if (state.isSimulating) return;
+      state.isSimulating = true;
+      setButtonsState(true);
+      clearNodeClasses();
+
+      const badge = document.getElementById("scenarioBadge");
+      const desc = document.getElementById("scenarioDescription");
+
+      badge.className = "status-badge badge-duplicate";
+      badge.innerText = "DUPLICATE BLOCKED";
+      desc.innerText = "Simulando re-entrega de evento At-Least-Once: Nó CheckJob detecta job já existente.";
+
+      addLog("warn", "Iniciando Simulação 2: Re-entrega de evento S3 já processado.");
+
+      // Fast pass to S3 & EventBridge
+      highlightNode("node-presigned", "node-skipped");
+      highlightNode("node-s3", "node-succeeded");
+      highlightNode("node-eventbridge", "node-succeeded");
+      addLog("info", "Evento duplicado capturado pelo EventBridge para o mesmo arquivo DWG.");
+      await sleep(600);
+
+      // Check Job
+      highlightNode("node-check-job", "node-running");
+      inspectNode("node-check-job");
+      addLog("info", "[SFN Task] Consultando DynamoDB com pk existente: JOB#proj-alphaville_lote12.dwg.");
+      await sleep(800);
+      highlightNode("node-check-job", "node-duplicate");
+      addLog("warn", "[SFN Task] Registro localizado no DynamoDB! exists = true, status = COMPLETED.");
+
+      // Choice State
+      highlightNode("node-choice", "node-running");
+      inspectNode("node-choice");
+      addLog("info", "[SFN Choice] Avaliando: exists == true. Desviando para nó de saída antecipada.");
+      await sleep(600);
+      highlightNode("node-choice", "node-duplicate");
+
+      // Skip heavy calculation branch
+      highlightNode("node-register-job", "node-skipped");
+      highlightNode("node-process-file", "node-skipped");
+      highlightNode("node-success", "node-skipped");
+      highlightNode("node-rollback-saga", "node-skipped");
+      highlightNode("node-failed-state", "node-skipped");
+
+      // Duplicate Exit
+      highlightNode("node-duplicate-exit", "node-duplicate");
+      addLog("success", "[SFN] Execução finalizada sem recalcular! Zero custo de computação e zero duplicidade.");
+
+      badge.className = "status-badge badge-duplicate";
+      badge.innerText = "IDEMPOTENT BYPASS";
+      desc.innerText = "Evento duplicado barrado com sucesso pelo DynamoDB. Idempotência At-Least-Once comprovada.";
+
+      setButtonsState(false);
+      state.isSimulating = false;
+    }
+
+    // =========================================================================
+    // Simulação 3: Falha & Rollback Saga
+    // =========================================================================
+    async function runSagaRollback() {
+      if (state.isSimulating) return;
+      state.isSimulating = true;
+      setButtonsState(true);
+      clearNodeClasses();
+
+      const badge = document.getElementById("scenarioBadge");
+      const desc = document.getElementById("scenarioDescription");
+
+      badge.className = "status-badge badge-running";
+      badge.innerText = "RUNNING";
+      desc.innerText = "Simulando falha severa na malha 3D e acionamento da compensação Saga Rollback.";
+
+      addLog("info", "Iniciando Simulação 3: Teste de Resiliência e Rollback Saga.");
+
+      // Fast pass to register
+      highlightNode("node-presigned", "node-succeeded");
+      highlightNode("node-s3", "node-succeeded");
+      highlightNode("node-eventbridge", "node-succeeded");
+      highlightNode("node-check-job", "node-succeeded");
+      highlightNode("node-choice", "node-succeeded");
+      highlightNode("node-duplicate-exit", "node-skipped");
+
+      // Register Job
+      highlightNode("node-register-job", "node-running");
+      const failJob = {
+        pk: "JOB#proj-falha-terreno_corrompido.dwg",
+        sk: "METADATA",
+        status: "PROCESSING",
+        fileKey: "terrenos/raw/proj-falha/corrompido.dwg",
+        volumes: "Processando...",
+        ttl: "7 dias"
+      };
+      state.jobs.unshift(failJob);
+      renderDynamoTable();
+
+      await sleep(700);
+      highlightNode("node-register-job", "node-succeeded");
+      addLog("info", "[SFN Task] Trava registrada. Encaminhando para cálculo volumétrico...");
+
+      // Process File (Fails)
+      highlightNode("node-process-file", "node-running");
+      inspectNode("node-process-file");
+      addLog("info", "[SFN Task] Processando malha volumétrica...");
+      await sleep(800);
+
+      // Retry Attempt 1
+      addLog("warn", "[SFN Retry 1/3] Erro temporário detectado: Lambda.ServiceException. Aguardando 2s (BackoffRate: 2)...");
+      await sleep(700);
+
+      // Failure
+      highlightNode("node-process-file", "node-failed");
+      addLog("error", "[SFN Task] Erro irrecuperável: 'MeshCorruptedError: Vértices auto-interceptantes'.");
+      await sleep(500);
+
+      // Catch: Rollback Job
+      highlightNode("node-success", "node-skipped");
+      highlightNode("node-rollback-saga", "node-running");
+      inspectNode("node-rollback-saga");
+      addLog("warn", "[SFN Catch] Bloco Catch acionado! Redirecionando para RollbackJobTask (Saga).");
+      await sleep(900);
+
+      // Update DynamoDB to FAILED
+      failJob.status = "FAILED";
+      failJob.volumes = "Erro: Malha corrompida";
+      renderDynamoTable();
+
+      highlightNode("node-rollback-saga", "node-failed");
+      addLog("success", "[SFN Saga] Registro atualizado no DynamoDB para FAILED com motivo da falha.");
+
+      // Fail State
+      highlightNode("node-failed-state", "node-failed");
+      addLog("error", "[SFN] State Machine concluída em estado de Fail após compensação transacional.");
+
+      badge.className = "status-badge badge-failed";
+      badge.innerText = "FAILED & ROLLED BACK";
+      desc.innerText = "Falha capturada com sucesso! O padrão Saga executou a compensação e marcou FAILED no banco.";
+
+      setButtonsState(false);
+      state.isSimulating = false;
+    }
+
+    // Reset simulator
+    function resetSimulator() {
+      clearNodeClasses();
+      state.isSimulating = false;
+      document.getElementById("scenarioBadge").className = "status-badge badge-idle";
+      document.getElementById("scenarioBadge").innerText = "IDLE";
+      document.getElementById("scenarioDescription").innerText = "Simulador resetado para o estado inicial.";
+      document.getElementById("activeNodesCount").innerText = "0 ativos";
+
+      state.jobs = [
+        {
+          pk: "JOB#proj-alphaville_lote12.dwg",
+          sk: "METADATA",
+          status: "COMPLETED",
+          fileKey: "terrenos/raw/proj-alphaville/1700000000-lote12.dwg",
+          volumes: "4.520m³ / 3.820m³",
+          ttl: "7 dias"
+        }
+      ];
+      renderDynamoTable();
+      addLog("info", "Simulador reinicializado.");
+    }
+
+    // Initial boot
+    window.addEventListener("DOMContentLoaded", () => {
+      renderDynamoTable();
+      addLog("info", "Simulador ArqLab carregado com sucesso em modo Standalone.");
+      addLog("info", "Pronto para simular cenários de alta resiliência na AWS.");
+    });
+  </script>
+</body>
+</html>
