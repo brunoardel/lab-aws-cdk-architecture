@@ -154,8 +154,11 @@ Caso deseje subir uma réplica local dos serviços da AWS com interface Web:
 # Iniciar o emulador Floci na porta 4566
 docker compose up -d
 
-# Acessar a interface Web do Floci:
-# http://localhost:4566/_floci/ui
+# Acessar a interface Web do Floci UI no navegador:
+# 👉 http://localhost:4500
+
+# Endpoint local das APIs AWS (S3, DynamoDB, etc.):
+# 👉 http://localhost:4566
 
 # Parar o emulador
 docker compose down
